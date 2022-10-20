@@ -1,0 +1,19 @@
+{
+  "name": "node-10kc-mini",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "nodemon ./server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node seed-random-notifications.js",
+    "swagger": "node swagger-autogen.js"
+  },
+  "dependencies": {
+    "config": "^3.3.7",
+    "express": "^4.17.3",
+    "mongodb": "^4.8.0",
+    "mongoose": "^6.2.6",
+    "nodemon": "^2.0.15",
+    "swagger-autogen": "^2.20.8",
+    "swagger-ui-express": "^4.3.0"
+  }
+}
