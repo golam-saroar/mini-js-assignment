@@ -1,8 +1,9 @@
 'use strict';
 
 const config = require('config');
-const express = require('express');
 const mongoose = require('mongoose');
+
+const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const Notification = require('./schemas/NotificationSchema').Notification;
@@ -11,40 +12,39 @@ const app = express();
 
 const MONGO_HOST = config.get('MONGO_HOST');
 
-app.get('/api/notifications', function (req, res, next) {
-  Notification.find({}).exec(function (error, notifications) {
-    if (error) {
-      console.log('Internal Error: ', error);
-      res.sendStatus(500);
+app.get('/api/notifications', async (req, res, next) => {
+  try {
+    const notifications = await Notification.find({});
+    if (notifications) {
+      res.json(notifications);
     }
-    console.log('this is the log of the asdfasdf');
-    res.json(notifications);
-  });
+  } catch (error) {
+    res.status(500).send({ errorMessage: 'Error while finding the Notifications' });
+  }
 });
 
-app.get('/api/notifications/:id', function (req, res, next) {
-  console.log('id is ',req.params.id);
-  Notification.find({_id: req.params.id}).exec(function (error, notification) {
-    if (error) {
-      console.log('Internal Error: ', error);
-      res.sendStatus(500);
+app.get('/api/notifications/:id', async (req, res, next) => {
+  try {
+    const notificationId = req.params.id;
+    const notification = await Notification.findOne({ _id: notificationId });
+    if (notification) {
+      res.json(notification);
+    } else {
+      res.status(404).send({ errorMessage: `Notification Not found with ID ${notificationId}` });
     }
-    console.log('this is the log of the asdfasdf');
-    res.json(notification);
-  });
+  } catch (error) {
+    res.status(500).send({ errorMessage: 'Error while finding the Notification' });
+  }
 });
-
-// res.status(500).send({errorMessage: 'Could not update action log'});
-
 
 app.put('/api/notifications/read/:id', function (req, res, next) {
-  console.log('id is ',req.params.id);
-  Notification.update({_id: req.params.id},{$set:{read:true}}).exec(function (error, notification) {
+  console.log('id is ', req.params.id);
+  Notification.update({ _id: req.params.id }, { $set: { read: true } }).exec(function (error, notification) {
     if (error) {
       console.log('Internal Error: ', error);
       res.sendStatus(500);
     }
-    
+
     res.json(notification);
   });
 });
