@@ -23,6 +23,21 @@ app.get('/api/notifications', async (req, res, next) => {
   }
 });
 
+
+app.get('/api/notifications/unread', async (req, res, next) => {
+  try {
+    const notifications = await Notification.find({ read: false });
+  
+    if (notifications) {
+      res.status(200).json(notifications);
+    } else {
+      res.status(404).send({ errorMessage: `Notifications Not found`});
+    }
+  } catch (error) {
+    res.status(500).send({ errorMessage: 'Error while finding the Notifications' });
+  }
+});
+
 app.get('/api/notifications/:id', async (req, res, next) => {
   try {
     const notificationId = req.params.id;
@@ -37,47 +52,48 @@ app.get('/api/notifications/:id', async (req, res, next) => {
   }
 });
 
-app.put('/api/notifications/read/:id', function (req, res, next) {
-  console.log('id is ', req.params.id);
-  Notification.update({ _id: req.params.id }, { $set: { read: true } }).exec(function (error, notification) {
-    if (error) {
-      console.log('Internal Error: ', error);
-      res.sendStatus(500);
+app.put('/api/notifications/read/all',  async (req, res, next) => {
+  try {
+    const notifications = await Notification.updateMany({ read: true },{ $set: { read: false } });
+    if (notifications) {
+      res.status(204).send({message: 'Updated Successfully'});
+    } else {
+      res.status(404).send({ errorMessage: `No Notifications  found to update`});
     }
-
-    res.json(notification);
-  });
+  } catch (error) {
+    res.status(500).send({ errorMessage: 'Error while finding the Notifications' });
+  }
 });
 
-app.get('/api/notifications/unread', function (req, res, next) {
-  Notification.find({ read: false }).exec(function (error, notifications) {
-    if (error) {
-      console.log('Internal Error: ', error);
-      res.sendStatus(500);
+app.put('/api/notifications/read/:id', async (req, res, next) => {
+  try {
+    const notificationId = req.params.id;
+    const notification = await Notification.updateOne({ _id: notificationId },{ $set: { read: true } });
+    if (notification) {
+      res.status(204).send({message: 'Updated Successfully'});
+    } else {
+      res.status(404).send({ errorMessage: `Notification Not found with ID ${notificationId}` });
     }
-    res.json(notifications);
-  });
+  } catch (error) {
+    res.status(500).send({ errorMessage: 'Error while finding the Notification' });
+  }
 });
-app.get('/api/notifications/unread/count', function (req, res, next) {
-  Notification.find({ read: false }).exec(function (error, notifications) {
-    if (error) {
-      console.log('Internal Error: ', error);
-      res.sendStatus(500);
+
+app.get('/api/notifications/unread/count', async (req, res, next) => {
+  try {
+    const notifications = await Notification.find({ read: false });
+  
+    if (notifications) {
+      res.status(200).json({ count: notifications.length });
+    } else {
+      res.status(404).send({ errorMessage: `Notifications Not found`});
     }
-    res.json({ count: notifications.length });
-  });
+  } catch (error) {
+    res.status(500).send({ errorMessage: 'Error while finding the Notifications' });
+  }
 });
-app.put('/api/notifications/read/all', function (req, res, next) {
-  Notification.updateMany({ read: false }, { $set: { read: true } }).exec(
-    function (error, updateResult) {
-      if (error) {
-        console.log('Internal Error: ', error);
-        res.sendStatus(500);
-      }
-      res.json({ count: updateResult.modifiedCount });
-    }
-  );
-});
+
+
 app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(3000, async () => {
