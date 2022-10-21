@@ -83,7 +83,7 @@
         }
       }
     },
-    "/api/notifications/read/{id}": {
+    "/api/notifications/mark/read/{id}": {
       "put": {
         "description": "",
         "parameters": [

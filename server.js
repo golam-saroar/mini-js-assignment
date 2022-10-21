@@ -54,7 +54,7 @@ app.get('/api/notifications/:id', async (req, res, next) => {
 
 app.put('/api/notifications/read/all',  async (req, res, next) => {
   try {
-    const notifications = await Notification.updateMany({ read: true },{ $set: { read: false } });
+    const notifications = await Notification.updateMany({ read: false },{ $set: { read: true } });
     if (notifications) {
       res.status(204).send({message: 'Updated Successfully'});
     } else {
@@ -65,7 +65,7 @@ app.put('/api/notifications/read/all',  async (req, res, next) => {
   }
 });
 
-app.put('/api/notifications/read/:id', async (req, res, next) => {
+app.put('/api/notifications/mark/read/:id', async (req, res, next) => {
   try {
     const notificationId = req.params.id;
     const notification = await Notification.updateOne({ _id: notificationId },{ $set: { read: true } });
